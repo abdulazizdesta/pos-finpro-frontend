@@ -1,14 +1,19 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { ShoppingCart, ArrowLeft } from 'lucide-react'
 import { useAuth } from '../../../hooks/useAuth'
 import api from '../../../services/api'
+import Button from '../../../components/ui/Button'
+import Input from '../../../components/ui/Input'
+import ThemeToggle from '../../../components/ui/ThemeToggle'
 import type { LoginPayload } from '../../../types/auth'
 
 export default function Login() {
   const [form, setForm] = useState<LoginPayload>({ email: '', password: '' })
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const nav = useNavigate()
   const { login } = useAuth()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,10 +25,10 @@ export default function Login() {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await api.post('/auth/login', form)
-      const d = res.data.data
+      const { data } = await api.post('/auth/login', form)
+      const d = data.data
       login({ token: d.token, name: d.name, role: d.role, business: d.business ?? null, outlet: d.outlet ?? null })
-      navigate('/dashboard')
+      nav('/dashboard')
     } catch (err: any) {
       setError(err.response?.data?.message ?? 'Terjadi kesalahan')
     } finally {
@@ -32,76 +37,57 @@ export default function Login() {
   }
 
   return (
-    <div className="flex h-screen bg-slate-950 text-white">
-      {/* Kiri — form */}
-      <div className="flex flex-1 flex-col justify-center items-center px-8">
+    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 transition-colors">
+      <motion.div
+        initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="flex flex-1 flex-col justify-center items-center px-6 py-8"
+      >
         <div className="w-full max-w-sm">
-          <p className="text-slate-500 text-xs tracking-widest uppercase mb-2">Welcome back</p>
-          <h1 className="text-slate-100 text-4xl font-semibold mb-1">POS Finpro</h1>
-          <p className="text-slate-500 text-sm mb-8">Masuk ke akun bisnis Anda</p>
+          <div className="flex items-center justify-between mb-8">
+            <button onClick={() => nav('/')} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors cursor-pointer">
+              <ArrowLeft size={16} /> Kembali
+            </button>
+            <ThemeToggle />
+          </div>
+
+          <div className="flex items-center gap-2.5 mb-8">
+            <div className="w-10 h-10 gradient-teal rounded-xl flex items-center justify-center">
+              <ShoppingCart size={20} className="text-white" />
+            </div>
+            <span className="font-bold text-xl text-slate-900 dark:text-white">Finpro<span className="gradient-text">POS</span></span>
+          </div>
+
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Selamat datang kembali</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Masuk ke akun bisnis Anda</p>
 
           {error && (
-            <div className="bg-red-950 border border-red-800 text-red-400 text-sm px-4 py-2.5 rounded-lg mb-4">
-              {error}
-            </div>
+            <div className="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm px-4 py-2.5 rounded-xl mb-4">{error}</div>
           )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-slate-400 text-sm">Email</label>
-              <input
-                type="email" name="email" value={form.email} onChange={handleChange}
-                placeholder="owner@bisnis.com" required
-                className="bg-slate-900 border border-slate-700 text-white text-sm px-4 py-2.5 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-slate-400 text-sm">Password</label>
-              <input
-                type="password" name="password" value={form.password} onChange={handleChange}
-                placeholder="••••••••" required
-                className="bg-slate-900 border border-slate-700 text-white text-sm px-4 py-2.5 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
-              />
-            </div>
-
-            <button
-              type="submit" disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium py-2.5 rounded-lg transition-colors cursor-pointer mt-2"
-            >
-              {loading ? 'Masuk...' : 'Masuk'}
-            </button>
+            <Input label="Email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="owner@bisnis.com" required />
+            <Input label="Password" name="password" type="password" value={form.password} onChange={handleChange} placeholder="Min. 8 karakter" required />
+            <Button type="submit" loading={loading} className="w-full mt-2">Masuk</Button>
           </form>
 
-          <p className="text-slate-600 text-xs text-center mt-6">
+          <p className="text-slate-500 text-sm text-center mt-6">
             Belum punya akun?{' '}
-            <span onClick={() => navigate('/register')} className="text-blue-400 cursor-pointer hover:text-blue-300 transition-colors">
-              Daftar bisnis
-            </span>
+            <span onClick={() => nav('/register')} className="text-teal-600 dark:text-teal-400 font-medium cursor-pointer hover:underline">Daftar bisnis</span>
           </p>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Kanan — branding */}
-      <div className="hidden md:flex flex-1 bg-slate-900 justify-center items-center relative overflow-hidden">
-        <div className="text-center px-8">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2 5h14M7 13l-2-5" />
-            </svg>
-          </div>
-          <h2 className="text-slate-200 text-2xl font-semibold mb-2">Sistem POS Modern</h2>
-          <p className="text-slate-500 text-sm max-w-xs leading-relaxed mx-auto">
-            Kelola transaksi, stok, dan laporan bisnis Anda dari satu platform.
-          </p>
-          <div className="mt-8 flex gap-4 justify-center">
-            {['Transaksi', 'Stok', 'Laporan', 'Multi-outlet'].map((f) => (
-              <span key={f} className="text-xs bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700">
-                {f}
-              </span>
-            ))}
-          </div>
+      <div className="hidden lg:flex flex-1 gradient-teal items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="absolute rounded-full border border-white/20" style={{ width: `${200 + i * 120}px`, height: `${200 + i * 120}px`, top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+          ))}
         </div>
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="relative text-center text-white px-12">
+          <h2 className="text-3xl font-bold mb-4">Sistem POS Modern</h2>
+          <p className="text-teal-100 max-w-sm">Kelola transaksi, stok, dan laporan bisnis Anda dari satu platform yang powerful.</p>
+        </motion.div>
       </div>
     </div>
   )
