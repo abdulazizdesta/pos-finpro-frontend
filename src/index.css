@@ -1,8 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-sans: 'Inter', sans-serif;
   --color-teal-primary: #0D9488;
   --color-teal-secondary: #14B8A6;
   --color-cyan-accent: #06B6D4;
@@ -13,7 +14,7 @@ html {
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .gradient-teal {
@@ -30,4 +31,18 @@ body {
 .glass {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.gradient-teal-btn {
+  background: linear-gradient(135deg, #0D9488, #06B6D4);
+  color: white;
+}
+
+.gradient-teal-btn:hover {
+  background: linear-gradient(135deg, #0F766E, #0891B2);
 }
